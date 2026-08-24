@@ -158,7 +158,7 @@
 
         <div class="grid">
           <div class="stat">
-            <div class="k">Last live (IST)</div>
+            <div class="k">Last live (Local)</div>
             <div class="v" id="ist">—</div>
           </div>
           <div class="stat">
@@ -223,6 +223,17 @@ const el = {
 function fmtIST(date){
   return date.toLocaleString("en-IN", { timeZone:"Asia/Kolkata", weekday:"short", year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true }) + " IST";
 }
+function fmtLocal(date){
+  try{
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
+    const str = date.toLocaleString(undefined, { weekday:"short", year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true });
+    // try to get short tz abbrev; fallback to tz name
+    const abbrev = date.toLocaleTimeString(undefined, { timeZoneName:"short" }).split(" ").pop() || tz;
+    return `${str} ${abbrev} (${tz})`;
+  } catch(e){
+    return date.toLocaleString() + " Local";
+  }
+}
 function fmtUTC(date){
   return date.toISOString().replace("T"," ").replace("Z"," UTC");
 }
@@ -274,9 +285,9 @@ function render(user){
       : `Streaming right now on <strong>twitch.tv/${LOGIN}</strong> — days counter is <strong>0</strong>.`;
     // still show lastBroadcast underneath
     if(startedAt){
-      el.ist.textContent = fmtIST(startedAt) + " (this stream)";
+      el.ist.textContent = fmtLocal(startedAt) + " (this stream)";
       el.utc.textContent = fmtUTC(startedAt);
-      el.exact.textContent = "Live — started " + fmtIST(startedAt);
+      el.exact.textContent = "Live — started " + fmtLocal(startedAt);
     } else {
       el.ist.textContent = "— (no prior broadcast found)";
       el.utc.textContent = "—";
@@ -309,7 +320,7 @@ function render(user){
       else if(daysFloor === 1) { el.subtitle.style.display = ""; el.subtitle.innerHTML = `Last live <strong>yesterday</strong>`; }
       else { el.subtitle.style.display = "none"; el.subtitle.innerHTML = ""; }
 
-      el.ist.textContent = fmtIST(startedAt);
+      el.ist.textContent = fmtLocal(startedAt);
       el.utc.textContent = fmtUTC(startedAt);
       el.exact.textContent = `${plural(p.d,"day")}, ${plural(p.h,"hour")}, ${plural(p.m,"min")} ago`;
     }
