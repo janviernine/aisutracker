@@ -160,22 +160,22 @@
   .hiatus-chevron svg{width:12px; height:7px; display:block; transition: transform .42s cubic-bezier(.22,1,.36,1)}
   .hiatus.open .hiatus-chevron{ background: transparent; border-color: transparent; color:var(--text)}
   .hiatus.open .hiatus-chevron svg{transform: rotate(180deg)}
-  .hiatus-collapsible{ display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .58s cubic-bezier(.22,1,.36,1), opacity .36s ease-out; will-change: grid-template-rows }
-  .hiatus.open .hiatus-collapsible{ grid-template-rows: 1fr; opacity:1 }
-  .hiatus-collapsible > .hiatus-list{ overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:8px; padding-bottom:0; margin-top:0; transition: margin-top .58s cubic-bezier(.22,1,.36,1), padding-bottom .58s cubic-bezier(.22,1,.36,1) }
-  .hiatus.open .hiatus-collapsible > .hiatus-list{ margin-top:10px; padding-bottom:4px }
+  .hiatus-collapsible{ display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .52s cubic-bezier(.4,0,.8,1) .06s, opacity .30s ease .02s; will-change: grid-template-rows }
+  .hiatus.open .hiatus-collapsible{ grid-template-rows: 1fr; opacity:1; transition: grid-template-rows .58s cubic-bezier(.22,1,.36,1), opacity .36s ease-out }
+  .hiatus-collapsible > .hiatus-list{ overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:8px; padding-bottom:0; margin-top:0; transition: margin-top .52s cubic-bezier(.4,0,.8,1) .06s, padding-bottom .52s cubic-bezier(.4,0,.8,1) .06s }
+  .hiatus.open .hiatus-collapsible > .hiatus-list{ margin-top:10px; padding-bottom:4px; transition: margin-top .58s cubic-bezier(.22,1,.36,1), padding-bottom .58s cubic-bezier(.22,1,.36,1) }
   .hiatus-list{ display:flex; flex-direction:column; gap:8px }
-  .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent; opacity:0; transform: translateY(6px); transition: opacity .32s ease-out, transform .46s cubic-bezier(.22,1,.36,1), border-color .2s ease}
-  .hiatus.open .hiatus-row{opacity:1; transform: translateY(0)}
+  .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent; opacity:0; transform: translateY(6px); transition: opacity .24s ease-out, transform .36s cubic-bezier(.4,0,.8,1), border-color .2s ease}
+  .hiatus.open .hiatus-row{opacity:1; transform: translateY(0); transition: opacity .32s ease-out, transform .46s cubic-bezier(.22,1,.36,1), border-color .2s ease}
   .hiatus.open .hiatus-row:nth-child(1){ transition-delay: .038s }
   .hiatus.open .hiatus-row:nth-child(2){ transition-delay: .076s }
   .hiatus.open .hiatus-row:nth-child(3){ transition-delay: .114s }
   .hiatus.open .hiatus-row:nth-child(4){ transition-delay: .152s }
   .hiatus.open .hiatus-row:nth-child(5){ transition-delay: .190s }
   .hiatus.open .hiatus-row:nth-child(n+6){ transition-delay: .228s }
-  .hiatus:not(.open) .hiatus-row:nth-child(1){ transition-delay: .114s }
-  .hiatus:not(.open) .hiatus-row:nth-child(2){ transition-delay: .076s }
-  .hiatus:not(.open) .hiatus-row:nth-child(3){ transition-delay: .038s }
+  .hiatus:not(.open) .hiatus-row:nth-child(1){ transition-delay: .02s }
+  .hiatus:not(.open) .hiatus-row:nth-child(2){ transition-delay: .04s }
+  .hiatus:not(.open) .hiatus-row:nth-child(3){ transition-delay: .06s }
   .hiatus:not(.open) .hiatus-row:nth-child(4){ transition-delay: 0s }
   .hiatus:not(.open) .hiatus-row:nth-child(5){ transition-delay: 0s }
   .hiatus-row.record{border-color:var(--line); background:transparent}
