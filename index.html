@@ -455,11 +455,9 @@ if(_copy) _copy.addEventListener("click", (e)=>{
 });
 
 // --- MOCK HIATUS DATA (for visual test, will be replaced by real log) ---
+// --- CURRENT HIATUS (verified 08 Aug 2026 05:53 UTC via GQL lastBroadcast) ---
 const MOCK_HIATUS = [
-  { start: "2026-08-01", end: "2026-08-26", days: 25 },
-  { start: "2026-09-01", end: "2026-09-29", days: 28 },
-  { start: "2026-10-05", end: "2026-10-18", days: 13 },
-  { start: "2026-11-02", end: "2026-11-25", days: 23 },
+  { start: "2026-08-08", end: null, days: null }, // ongoing — end/days computed at render
 ];
 
 function fmtHiatusDate(iso){
@@ -475,12 +473,20 @@ function renderHiatus(list){
   const countEl = document.getElementById("hiatusCount");
   if(!wrap || !listEl) return;
   if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; listEl.innerHTML='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; return; }
-  const maxDays = Math.max(...list.map(h=>h.days));
-  countEl.textContent = `${list.length} Recorded Hiatus${list.length===1?"":"es"} · Since 24 Aug 2026`;
-  listEl.innerHTML = list.map((h,i)=>{
-    const isRecord = h.days === maxDays && list.length>1;
+  // compute days for ongoing (end=null) as now - start (floor days)
+  const computed = list.map(h=>{
+    if(h.end && h.days) return h;
+    const s = new Date(h.start + "T05:53:31Z");
+    const now = new Date();
+    const days = Math.max(0, Math.floor((now - s)/86400000));
+    return { ...h, days, end: h.end || null };
+  });
+  const maxDays = Math.max(...computed.map(h=>h.days));
+  countEl.textContent = `${computed.length} Recorded Hiatus${computed.length===1?"":"es"} · Since 24 Aug 2026`;
+  listEl.innerHTML = computed.map((h,i)=>{
+    const isRecord = h.days === maxDays && computed.length>1;
     const start = fmtHiatusDate(h.start);
-    const end = fmtHiatusDate(h.end);
+    const end = h.end ? fmtHiatusDate(h.end) : "Ongoing";
     return `<div class="hiatus-row ${isRecord?"record":""}">
       <div class="hiatus-left">
         <div class="hiatus-label">Hiatus ${i+1}</div>
