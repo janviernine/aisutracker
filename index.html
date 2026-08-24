@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aisuchu — Days Since Last Live</title>
+<meta name="color-scheme" content="dark">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --card:#141414;
+    --card2:#1a1a1a;
+    --border:#2a2a2a;
+    --text:#f2f2f2;
+    --muted:#9a9a9a;
+    --accent:#f2f2f2;
+    --accent2:#d4d4d4;
+    --live:#f2f2f2;
+    --offline:#1e1e1e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;
+    background: radial-gradient(1200px 600px at 50% -10%, #1e1e1e 0%, transparent 60%),
+                radial-gradient(900px 500px at 90% 20%, #151515 0%, transparent 60%),
+                var(--bg);
+    color:var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .wrap{width:min(680px,100%);}
+  .top{
+    display:flex; align-items:center; gap:12px; justify-content:center;
+    margin-bottom:18px; color:var(--muted); font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .top a{color:var(--muted); text-decoration:none; border-bottom:1px dashed #3a3a3a}
+  .top a:hover{color:var(--text)}
+  .card{
+    background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+    border:1px solid var(--border);
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.06) inset;
+  }
+  .header{
+    display:flex; align-items:center; gap:16px;
+    padding:22px 24px;
+    border-bottom:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+  }
+  .avatar{
+    width:56px; height:56px; border-radius:50%; flex-shrink:0;
+    border:2px solid rgba(255,255,255,.18);
+    background:#222;
+    object-fit:cover;
+  }
+  .meta{flex:1; min-width:0}
+  .name-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .name{font-weight:800; font-size:18px; letter-spacing:-.02em}
+  .badge{
+    font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; border:1px solid var(--border);
+    background:var(--offline); color:#d4d4d4;
+  }
+  .badge.live{
+    background:#f2f2f2; border-color:#fff; color:#0a0a0a;
+    box-shadow: 0 0 16px rgba(255,255,255,.25);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1} 50%{opacity:.85}}
+  .handle{color:var(--muted); font-size:13px; margin-top:2px}
+  .handle a{color:var(--muted); text-decoration:none}
+  .handle a:hover{color:var(--text)}
+  .body{padding:28px 24px 22px; text-align:center}
+  .label{
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600;
+  }
+  .days{
+    font-size: clamp(64px, 16vw, 110px);
+    font-weight: 900;
+    letter-spacing: -.06em;
+    line-height:.9;
+    margin:10px 0 2px;
+    background: linear-gradient(180deg, #fff 15%, #a8a8a8 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    display:inline-flex; align-items:baseline; justify-content:center; gap:0.13em;
+  }
+  .days small{font-size: .32em; letter-spacing:-.03em; font-weight:700; opacity:.9; -webkit-text-fill-color:#a8a8a8; margin-left:0}
+  .days.live-now{
+    background:none; -webkit-text-fill-color:#f2f2f2;
+    text-shadow: 0 0 30px rgba(255,255,255,.25);
+    font-size: clamp(48px, 12vw, 80px);
+  }
+  .sub{color:var(--muted); font-size:14px; margin-top:8px; line-height:1.5}
+  .sub strong{color:var(--text); font-weight:700}
+  .grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    margin-top:18px; text-align:left;
+  }
+  @media (max-width:560px){ .grid{grid-template-columns:1fr} }
+  .stat{
+    background: rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px 14px;
+  }
+  .stat .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .stat .v{margin-top:6px; font-size:14px; font-weight:600; line-height:1.4; word-break:break-word}
+  .stat .v.muted{color:var(--muted); font-weight:500}
+  .actions{display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap}
+  .btn{
+    appearance:none; border:1px solid var(--border); background:#1a1a1a; color:var(--text);
+    padding:10px 14px; border-radius:999px; font-weight:600; font-size:13px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:.15s;
+  }
+  .btn:hover{border-color:#3a3a3a; background:#242424; transform: translateY(-1px)}
+  .btn.primary{background:#f2f2f2; border-color:#fff; color:#0a0a0a}
+  .btn.primary:hover{background:#fff}
+  .footer{
+    padding:14px 18px; border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+    color:var(--muted); font-size:12px;
+  }
+  .footer a{color:var(--muted); text-decoration:none; border-bottom:1px dashed #3a3a3a}
+  .footer a:hover{color:var(--text)}
+  .dot{width:6px; height:6px; border-radius:50%; background:#f2f2f2; box-shadow:0 0 8px rgba(255,255,255,.6); display:inline-block}
+  .dot.err{background:#9a9a9a; box-shadow:0 0 8px rgba(255,255,255,.3)}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:11px}
+  .error{
+    margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18);
+    color:#d4d4d4; padding:10px 12px; border-radius:12px; font-size:13px; display:none; text-align:left;
+  }
+  .error.show{display:block}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">Twitch &nbsp;·&nbsp; <a href="https://twitch.tv/aisuchu" target="_blank" rel="noopener">twitch.tv/aisuchu</a> &nbsp;·&nbsp; auto-refreshes every 5 min</div>
+
+    <div class="card" id="card">
+      <div class="header">
+        <img id="avatar" class="avatar" src="https://static-cdn.jtvnw.net/jtv_user_pictures/6afb1af2-1870-49b9-ad4c-fba3ffb2275e-profile_image-300x300.png" alt="aisuchu avatar" onerror="this.style.display='none'">
+        <div class="meta">
+          <div class="name-row">
+            <div class="name" id="displayName">aisuchu</div>
+            <div class="badge" id="badge">checking…</div>
+          </div>
+          <div class="handle"><a href="https://twitch.tv/aisuchu" target="_blank" rel="noopener">twitch.tv/aisuchu</a> <span id="handleExtra"></span></div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="label" id="label">Days since last live</div>
+        <div class="days" id="days">—</div>
+        <div class="sub" id="subtitle">Loading last broadcast…</div>
+
+        <div class="grid">
+          <div class="stat">
+            <div class="k">Last live (IST)</div>
+            <div class="v" id="ist">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Last live (UTC)</div>
+            <div class="v muted mono" id="utc">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Exact elapsed</div>
+            <div class="v" id="exact">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Source</div>
+            <div class="v muted" style="font-size:12px;line-height:1.5">
+              Twitch GQL <span class="mono">lastBroadcast.startedAt</span><br>
+              <span style="color:var(--muted)">works even with VODs disabled</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="refreshBtn">↻ Refresh now</button>
+          <a class="btn" href="https://twitch.tv/aisuchu" target="_blank" rel="noopener">Open Twitch ↗</a>
+        </div>
+
+        <div class="error" id="error"></div>
+      </div>
+
+      <div class="footer">
+        <span><span id="dot" class="dot"></span> <span id="statusText">connecting…</span> <span id="updated" class="mono" style="margin-left:6px; opacity:.8"></span></span>
+        <span>Built for <strong style="color:var(--text)">KBG</strong> · GQL Client-ID: <span class="mono">kimne78…</span> · <a href="#" id="copyLink">copy share text</a></span>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:14px; color:#7a7a7a; font-size:12px">
+      File is local on your Desktop — double-click to open. No token needed. If Twitch changes GQL, tell me and I'll patch the hash.
+    </div>
+  </div>
+
+<script>
+const LOGIN = "aisuchu";
+const GQL_URL = "https://gql.twitch.tv/gql";
+const GQL_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
+const REFRESH_MS = 5 * 60 * 1000;
+
+const el = {
+  days: document.getElementById("days"),
+  label: document.getElementById("label"),
+  subtitle: document.getElementById("subtitle"),
+  badge: document.getElementById("badge"),
+  ist: document.getElementById("ist"),
+  utc: document.getElementById("utc"),
+  exact: document.getElementById("exact"),
+  error: document.getElementById("error"),
+  dot: document.getElementById("dot"),
+  statusText: document.getElementById("statusText"),
+  updated: document.getElementById("updated"),
+  avatar: document.getElementById("avatar"),
+  displayName: document.getElementById("displayName"),
+  refreshBtn: document.getElementById("refreshBtn"),
+};
+
+function fmtIST(date){
+  return date.toLocaleString("en-IN", { timeZone:"Asia/Kolkata", weekday:"short", year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true }) + " IST";
+}
+function fmtUTC(date){
+  return date.toISOString().replace("T"," ").replace("Z"," UTC");
+}
+function elapsedParts(ms){
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  return {d,h,m, s: s%60, totalDays: ms/86400000 };
+}
+function plural(n, w){ return `${n} ${w}${n!==1?"s":""}`; }
+
+async function fetchGQL(){
+  const body = JSON.stringify({
+    query: "query { user(login: \""+LOGIN+"\") { login displayName profileImageURL(width: 300) stream { id type createdAt } lastBroadcast { startedAt } } }"
+  });
+  const res = await fetch(GQL_URL, {
+    method:"POST",
+    headers:{ "Client-ID": GQL_CLIENT_ID, "Content-Type":"application/json" },
+    body
+  });
+  if(!res.ok) throw new Error(`GQL HTTP ${res.status} ${res.statusText}`);
+  const json = await res.json();
+  if(json.errors) throw new Error(json.errors.map(e=>e.message).join("; "));
+  if(!json.data || !json.data.user) throw new Error("Channel not found: " + LOGIN);
+  return json.data.user;
+}
+
+function render(user){
+  const now = new Date();
+  const isLive = !!user.stream;
+  const startedAt = user.lastBroadcast && user.lastBroadcast.startedAt ? new Date(user.lastBroadcast.startedAt) : null;
+
+  // header
+  el.displayName.textContent = user.displayName || user.login || LOGIN;
+  if(user.profileImageURL) el.avatar.src = user.profileImageURL;
+
+  if(isLive){
+    el.badge.textContent = "● LIVE NOW";
+    el.badge.className = "badge live";
+    el.label.textContent = "Currently live";
+    el.days.className = "days live-now";
+    el.days.textContent = "LIVE";
+    el.subtitle.style.display = "";
+    const liveSince = user.stream.createdAt ? new Date(user.stream.createdAt) : null;
+    const liveFor = liveSince ? elapsedParts(now - liveSince) : null;
+    el.subtitle.innerHTML = liveFor
+      ? `Streaming right now — live for <strong>${plural(liveFor.h, "hour")}, ${plural(liveFor.m, "min")}</strong>. Days counter paused at <strong>0</strong>.`
+      : `Streaming right now on <strong>twitch.tv/${LOGIN}</strong> — days counter is <strong>0</strong>.`;
+    // still show lastBroadcast underneath
+    if(startedAt){
+      el.ist.textContent = fmtIST(startedAt) + " (this stream)";
+      el.utc.textContent = fmtUTC(startedAt);
+      el.exact.textContent = "Live — started " + fmtIST(startedAt);
+    } else {
+      el.ist.textContent = "— (no prior broadcast found)";
+      el.utc.textContent = "—";
+      el.exact.textContent = "Live now";
+    }
+  } else {
+    el.badge.textContent = "offline";
+    el.badge.className = "badge";
+    el.label.textContent = "Days since last live";
+
+    if(!startedAt){
+      el.days.textContent = "—";
+      el.days.className = "days";
+      el.subtitle.style.display = "";
+      el.subtitle.textContent = "No last broadcast found for this channel.";
+      el.ist.textContent = "—";
+      el.utc.textContent = "—";
+      el.exact.textContent = "—";
+    } else {
+      const diffMs = now - startedAt;
+      const p = elapsedParts(diffMs);
+      const daysFloor = Math.floor(diffMs / 86400000);
+      const daysText = String(daysFloor);
+
+      el.days.className = "days";
+      el.days.innerHTML = `${daysText}<small>day${daysFloor===1?"":"s"}</small>`;
+
+      // subtitle - don't duplicate big number; show time detail instead
+      if(daysFloor === 0) { el.subtitle.style.display = ""; el.subtitle.innerHTML = `Last live <strong>today</strong> — ${plural(p.h,"hour")} ago`; }
+      else if(daysFloor === 1) { el.subtitle.style.display = ""; el.subtitle.innerHTML = `Last live <strong>yesterday</strong>`; }
+      else { el.subtitle.style.display = "none"; el.subtitle.innerHTML = ""; }
+
+      el.ist.textContent = fmtIST(startedAt);
+      el.utc.textContent = fmtUTC(startedAt);
+      el.exact.textContent = `${plural(p.d,"day")}, ${plural(p.h,"hour")}, ${plural(p.m,"min")} ago`;
+    }
+  }
+
+  el.dot.className = "dot";
+  el.statusText.textContent = isLive ? "live" : "offline — updated";
+  el.updated.textContent = "· " + now.toLocaleTimeString("en-IN", {timeZone:"Asia/Kolkata", hour:"2-digit", minute:"2-digit", second:"2-digit"}) + " IST";
+  el.error.classList.remove("show");
+  el.error.textContent = "";
+}
+
+async function load(){
+  el.statusText.textContent = "fetching…";
+  el.dot.className = "dot";
+  el.error.classList.remove("show");
+  el.refreshBtn.disabled = true;
+  try{
+    const user = await fetchGQL();
+    render(user);
+  } catch(e){
+    console.error(e);
+    el.days.textContent = "—";
+    el.subtitle.textContent = "Could not fetch Twitch data.";
+    el.dot.className = "dot err";
+    el.statusText.textContent = "error";
+    el.error.textContent = "Fetch failed: " + (e.message || e) + " — Twitch GQL may be rate-limited or CORS-blocked if you opened the file via file:// in some browsers. Try opening via http:// (or tell me and I’ll add a CORS proxy fallback).";
+    el.error.classList.add("show");
+    el.ist.textContent = "—";
+    el.utc.textContent = "—";
+    el.exact.textContent = "—";
+    el.badge.textContent = "error";
+  } finally {
+    el.refreshBtn.disabled = false;
+  }
+}
+
+el.refreshBtn.addEventListener("click", load);
+document.getElementById("copyLink").addEventListener("click", (e)=>{
+  e.preventDefault();
+  const t = el.days.textContent.trim() + " — " + el.subtitle.textContent.replace(/<[^>]*>/g,"") + " (twitch.tv/aisuchu)";
+  navigator.clipboard.writeText(t).then(()=>{
+    const a = e.target; const old=a.textContent; a.textContent="copied!"; setTimeout(()=>a.textContent=old,1200);
+  });
+});
+
+load();
+setInterval(load, REFRESH_MS);
+
+// also tick the "exact elapsed" every 30s without refetching, so it feels live
+setInterval(()=>{
+  const istText = el.ist.textContent;
+  if(istText && istText !== "—" && !el.badge.classList.contains("live")){
+    // re-parse from displayed IST is messy — just refetch is cheap; skip tick if live
+  }
+}, 30000);
+</script>
+</body>
+</html>
