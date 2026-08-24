@@ -98,9 +98,17 @@
   .days small{font-size:.28em; letter-spacing:.04em; font-weight:400; opacity:.7; -webkit-text-fill-color:var(--muted); margin-left:0}
   .days.live-now{
     background:none; -webkit-text-fill-color:var(--text);
-    text-shadow:none;
     font-size: clamp(44px, 12vw, 64px);
     font-weight:200;
+    animation: liveTextGlow 1.6s infinite cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes liveTextGlow{
+    0%,100%{ opacity:.7; text-shadow: 0 0 8px rgba(255,255,255,.35), 0 0 16px rgba(255,255,255,.18) }
+    50%{ opacity:1; text-shadow: 0 0 14px rgba(255,255,255,.95), 0 0 28px rgba(255,255,255,.7), 0 0 42px rgba(255,255,255,.45) }
+  }
+  .live-glow{
+    color:#fff; font-weight:600;
+    animation: liveTextGlow 1.6s infinite cubic-bezier(.4,0,.2,1);
   }
   .sub{color:var(--muted); font-size:13px; margin-top:10px; line-height:1.5; min-height:1.2em; opacity:.95}
   .sub strong{color:var(--text); font-weight:500}
@@ -301,18 +309,31 @@ function render(user){
   if(user.profileImageURL) el.avatar.src = user.profileImageURL;
 
   if(isLive){
-    el.badge.style.display = "";
-    el.badge.innerHTML = '<span class="live-dot">●</span> LIVE NOW';
-    el.badge.className = "badge live";
-    el.label.textContent = "Currently live";
+    el.badge.style.display = "none";
+    el.badge.textContent = "";
+    el.badge.className = "badge";
+    el.label.textContent = "";
+    el.label.style.display = "none";
     el.days.className = "days live-now";
     el.days.textContent = "LIVE";
     el.subtitle.style.display = "";
-    const liveSince = user.stream.createdAt ? new Date(user.stream.createdAt) : null;
-    const liveFor = liveSince ? elapsedParts(now - liveSince) : null;
-    el.subtitle.innerHTML = liveFor
-      ? `Streaming right now — live for <strong>${plural(liveFor.h, "hour")}, ${plural(liveFor.m, "min")}</strong>. Days counter paused at <strong>0</strong>.`
-      : `Streaming right now on <strong>twitch.tv/${LOGIN}</strong> — days counter is <strong>0</strong>.`;
+    // X = gap before this stream (for demo: from original 08 Aug, for real: from last hiatus record)
+    let gapDays = null;
+    // try demo original date if ?live forced, else try MOCK last gap, else 16 fallback
+    try{
+      const orig = window.__origLastBroadcast ? new Date(window.__origLastBroadcast) : null;
+      if(orig) gapDays = Math.floor((now - orig)/86400000);
+    }catch(e){}
+    if(gapDays===null || isNaN(gapDays) || gapDays<0){
+      const lastH = (typeof MOCK_HIATUS!=="undefined" && MOCK_HIATUS.length) ? MOCK_HIATUS[MOCK_HIATUS.length-1] : null;
+      gapDays = lastH ? lastH.days : 16;
+      // if we have real startedAt before forcing, use that delta as X
+      if(startedAt && window.__origStartedAt){
+        const d = Math.floor((now - new Date(window.__origStartedAt))/86400000);
+        if(d>0) gapDays = d;
+      }
+    }
+    el.subtitle.innerHTML = `Aisu is currently <span class="live-glow">LIVE</span> after a ${gapDays} day hiatus, hiatus record has been reset`;
     // still show lastBroadcast underneath
     if(startedAt){
       el.ist.textContent = fmtLocal(startedAt) + " (this stream)";
@@ -327,6 +348,7 @@ function render(user){
     el.badge.style.display = "none";
     el.badge.textContent = "";
     el.badge.className = "badge";
+    el.label.style.display = "";
     el.label.textContent = "Days since last live";
 
     if(!startedAt){
@@ -373,6 +395,8 @@ async function load(){
     const user = await fetchGQL();
     // demo: ?live forces LIVE preview without touching real data
     if(new URLSearchParams(location.search).has("live")){
+      window.__origLastBroadcast = user.lastBroadcast?.startedAt || null;
+      window.__origStartedAt = user.lastBroadcast?.startedAt || null;
       user.stream = { id:"demo", type:"live", createdAt: new Date(Date.now() - 1000*60*42).toISOString() };
       if(!user.lastBroadcast) user.lastBroadcast = { startedAt: new Date(Date.now() - 1000*60*42).toISOString() };
     }
