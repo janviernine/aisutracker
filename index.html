@@ -312,8 +312,18 @@ function render(user){
     el.badge.style.display = "none";
     el.badge.textContent = "";
     el.badge.className = "badge";
-    el.label.textContent = "";
-    el.label.style.display = "none";
+    // Aisu is currently (above) -> LIVE (glowing) -> after hiatus (below)
+    el.label.style.display = "";
+    el.label.textContent = "Aisu is currently";
+    el.label.style.textTransform = "none";
+    el.label.style.letterSpacing = "0";
+    el.label.style.fontSize = "13px";
+    el.label.style.color = "var(--muted)";
+    el.label.style.opacity = ".95";
+    el.label.style.marginTop = "0";
+    el.label.style.marginBottom = "8px";
+    // move label above LIVE
+    try{ el.label.parentNode.insertBefore(el.label, el.days); }catch(e){}
     el.days.className = "days live-now";
     el.days.textContent = "LIVE";
     el.subtitle.style.display = "";
@@ -333,7 +343,8 @@ function render(user){
         if(d>0) gapDays = d;
       }
     }
-    el.subtitle.innerHTML = `Aisu is currently <span class="live-glow">LIVE</span> after a ${gapDays} day hiatus, hiatus record has been reset`;
+    el.subtitle.innerHTML = `after a ${gapDays} day hiatus, hiatus record has been reset`;
+    el.subtitle.style.marginTop = "10px";
     // still show lastBroadcast underneath
     if(startedAt){
       el.ist.textContent = fmtLocal(startedAt) + " (this stream)";
@@ -350,6 +361,15 @@ function render(user){
     el.badge.className = "badge";
     el.label.style.display = "";
     el.label.textContent = "Days since last live";
+    el.label.style.textTransform = "";
+    el.label.style.letterSpacing = "";
+    el.label.style.fontSize = "";
+    el.label.style.color = "";
+    el.label.style.opacity = "";
+    el.label.style.marginTop = "";
+    el.label.style.marginBottom = "";
+    try{ el.label.parentNode.insertBefore(el.label, el.subtitle); }catch(e){}
+    el.subtitle.style.marginTop = "";
 
     if(!startedAt){
       el.days.textContent = "—";
