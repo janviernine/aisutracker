@@ -158,8 +158,10 @@
   .hiatus-count{font-size:10px; color:var(--muted); opacity:.55; font-weight:400}
   .hiatus-chevron{flex-shrink:0; display:grid; place-items:center; border:none; background: transparent; color:var(--muted); width:auto; height:auto; padding:4px}
   .hiatus-chevron svg{width:12px; height:7px; display:block; transition: transform .42s cubic-bezier(.22,1,.36,1)}
-  .hiatus.open .hiatus-chevron{ background: transparent; border-color: transparent; color:var(--text)}
-  .hiatus.open .hiatus-chevron svg{transform: rotate(180deg)}
+  .hiatus-head[aria-expanded="true"] .hiatus-chevron{ color:var(--text) }
+  body.hiatus-overlay-mode .hiatus-head[aria-expanded="true"] .hiatus-chevron svg{ transform: rotate(-90deg) }
+  body:not(.hiatus-overlay-mode) .hiatus-head[aria-expanded="true"] .hiatus-chevron svg{ transform: rotate(180deg) }
+  /* keep dropdown styles but hidden when overlay mode active — overlay below overrides */
   .hiatus-collapsible{ display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .342s cubic-bezier(.4,0,.8,1), opacity .198s ease; will-change: grid-template-rows }
   .hiatus.open .hiatus-collapsible{ grid-template-rows: 1fr; opacity:1; transition: grid-template-rows .58s cubic-bezier(.22,1,.36,1), opacity .36s ease-out }
   .hiatus-collapsible > .hiatus-list{ overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:8px; padding-bottom:0; margin-top:0; transition: margin-top .342s cubic-bezier(.4,0,.8,1), padding-bottom .342s cubic-bezier(.4,0,.8,1) }
@@ -167,6 +169,19 @@
   .hiatus-list{ display:flex; flex-direction:column; gap:8px }
   .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent; opacity:0; transform: translateY(6px); transition: opacity .162s ease-out, transform .252s cubic-bezier(.4,0,.8,1), border-color .2s ease}
   .hiatus.open .hiatus-row{opacity:1; transform: translateY(0); transition: opacity .32s ease-out, transform .46s cubic-bezier(.22,1,.36,1), border-color .2s ease}
+  /* overlay mode */
+  body.hiatus-overlay-mode .hiatus-collapsible{ display:none !important }
+  .hiatus-overlay{ position:fixed; inset:0; z-index:50; display:grid; place-items:center; padding:20px; background: rgba(0,0,0,.72); backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1); opacity:0; pointer-events:none; transition: opacity .32s ease; }
+  .hiatus-overlay.open{ opacity:1; pointer-events:auto }
+  .hiatus-overlay-card{ width:min(520px, 92vw); max-height:min(72vh, 560px); overflow:auto; background:#0a0a0a; border:1px solid #242424; border-radius:16px; padding:18px; box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06); transform: translateY(14px) scale(.98); opacity:0; transition: transform .48s cubic-bezier(.22,1,.36,1), opacity .32s ease; scrollbar-width:thin; scrollbar-color:#333 transparent }
+  .hiatus-overlay.open .hiatus-overlay-card{ transform: translateY(0) scale(1); opacity:1 }
+  .hiatus-overlay-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line) }
+  .hiatus-overlay-title{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500 }
+  .hiatus-overlay-close{ appearance:none; border:1px solid var(--line); background:transparent; color:var(--muted); width:28px; height:28px; border-radius:999px; display:grid; place-items:center; cursor:pointer; transition: border-color .15s, color .15s, background .15s }
+  .hiatus-overlay-close:hover{ border-color:#333; color:var(--text); background: rgba(255,255,255,.06) }
+  .hiatus-overlay .hiatus-list{ opacity:1; transform:none }
+  .hiatus-overlay .hiatus-row{ opacity:0; transform: translateY(8px) }
+  .hiatus-overlay.open .hiatus-row{ opacity:1; transform: translateY(0) }
   .hiatus.open .hiatus-row:nth-child(1){ transition-delay: .038s }
   .hiatus.open .hiatus-row:nth-child(2){ transition-delay: .076s }
   .hiatus.open .hiatus-row:nth-child(3){ transition-delay: .114s }
@@ -249,6 +264,7 @@
       <div class="hiatus-collapsible" id="hiatusCollapsible"><div class="hiatus-list" id="hiatusList"></div></div>
     </div>
   </div>
+  <div class="hiatus-overlay" id="hiatusOverlay" aria-hidden="true"><div class="hiatus-overlay-card" role="dialog" aria-modal="true" aria-label="Hiatus history"><div class="hiatus-overlay-head"><span class="hiatus-overlay-title">Hiatus history</span><button type="button" class="hiatus-overlay-close" id="hiatusOverlayClose" aria-label="Close">✕</button></div><div class="hiatus-list" id="hiatusOverlayList"></div></div></div>
 
 <script>
 const LOGIN = "aisuchu";
@@ -472,12 +488,13 @@ function fmtHiatusDate(iso){
 function renderHiatus(list){
   const wrap = document.getElementById("hiatus");
   const listEl = document.getElementById("hiatusList");
+  const overlayListEl = document.getElementById("hiatusOverlayList");
   const countEl = document.getElementById("hiatusCount");
   if(!wrap || !listEl) return;
-  if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; listEl.innerHTML='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; return; }
+  if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; const empty='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; listEl.innerHTML=empty; if(overlayListEl) overlayListEl.innerHTML=empty; return; }
   const maxDays = Math.max(...list.map(h=>h.days));
   countEl.textContent = `${list.length} Recorded Hiatus${list.length===1?"":"es"} · Since 24 Aug 2026`;
-  listEl.innerHTML = list.map((h,i)=>{
+  const html = list.map((h,i)=>{
     const isRecord = h.days === maxDays && list.length>1;
     const start = fmtHiatusDate(h.start);
     const end = fmtHiatusDate(h.end);
@@ -492,19 +509,36 @@ function renderHiatus(list){
       </div>
     </div>`;
   }).join("");
+  listEl.innerHTML = html;
+  if(overlayListEl) overlayListEl.innerHTML = html;
 }
 
 // render mock on load
 renderHiatus(MOCK_HIATUS);
 
-// dropdown toggle
+// hiatus: toggle between dropdown and overlay via URL ?overlay or body class
+const USE_OVERLAY = new URLSearchParams(location.search).has("overlay") || document.body.classList.contains("hiatus-overlay-mode");
+// auto-enable overlay mode for demo when ?overlay present
+if(new URLSearchParams(location.search).has("overlay")) document.body.classList.add("hiatus-overlay-mode");
+
 const hiatusWrap = document.getElementById("hiatus");
 const hiatusBtn = document.getElementById("hiatusToggle");
+const hiatusOverlay = document.getElementById("hiatusOverlay");
+const hiatusOverlayClose = document.getElementById("hiatusOverlayClose");
+function openOverlay(){ if(!hiatusOverlay) return; hiatusOverlay.classList.add("open"); hiatusOverlay.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; hiatusBtn && hiatusBtn.setAttribute("aria-expanded","true"); }
+function closeOverlay(){ if(!hiatusOverlay) return; hiatusOverlay.classList.remove("open"); hiatusOverlay.setAttribute("aria-hidden","true"); document.body.style.overflow=""; hiatusBtn && hiatusBtn.setAttribute("aria-expanded","false"); }
 if(hiatusBtn && hiatusWrap){
   hiatusBtn.addEventListener("click", ()=>{
+    const isOverlayMode = document.body.classList.contains("hiatus-overlay-mode") || new URLSearchParams(location.search).has("overlay");
+    if(isOverlayMode){ openOverlay(); return; }
     const open = hiatusWrap.classList.toggle("open");
     hiatusBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
+}
+if(hiatusOverlay){
+  hiatusOverlay.addEventListener("click", (e)=>{ if(e.target===hiatusOverlay) closeOverlay(); });
+  if(hiatusOverlayClose) hiatusOverlayClose.addEventListener("click", closeOverlay);
+  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && hiatusOverlay.classList.contains("open")) closeOverlay(); });
 }
 
 load();
