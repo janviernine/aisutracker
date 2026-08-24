@@ -158,7 +158,7 @@
 
         <div class="grid">
           <div class="stat">
-            <div class="k">Last live (Local)</div>
+            <div class="k">Last live</div>
             <div class="v" id="ist">—</div>
           </div>
           <div class="stat">
@@ -216,13 +216,12 @@ function fmtIST(date){
 }
 function fmtLocal(date){
   try{
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
-    const str = date.toLocaleString(undefined, { weekday:"short", year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true });
-    // try to get short tz abbrev; fallback to tz name
-    const abbrev = date.toLocaleTimeString(undefined, { timeZoneName:"short" }).split(" ").pop() || tz;
-    return `${str} ${abbrev} (${tz})`;
+    // DD MMM YYYY, hh:mm A  (e.g. 08 Aug 2026, 11:23 AM) in viewer's local timezone, no seconds/tz clutter
+    const s = date.toLocaleString("en-GB", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true });
+    // en-GB gives "08 Aug 2026, 11:23 am" -> uppercase AM/PM and ensure comma spacing
+    return s.replace(/\b(am|pm)\b/i, m => m.toUpperCase());
   } catch(e){
-    return date.toLocaleString() + " Local";
+    return date.toLocaleString();
   }
 }
 function fmtUTC(date){
