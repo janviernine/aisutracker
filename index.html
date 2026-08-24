@@ -360,6 +360,11 @@ async function load(){
   if(el.refreshBtn) el.refreshBtn.disabled = true;
   try{
     const user = await fetchGQL();
+    // demo: ?live forces LIVE preview without touching real data
+    if(new URLSearchParams(location.search).has("live")){
+      user.stream = { id:"demo", type:"live", createdAt: new Date(Date.now() - 1000*60*42).toISOString() };
+      if(!user.lastBroadcast) user.lastBroadcast = { startedAt: new Date(Date.now() - 1000*60*42).toISOString() };
+    }
     render(user);
   } catch(e){
     console.error(e);
