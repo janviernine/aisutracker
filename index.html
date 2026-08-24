@@ -136,7 +136,7 @@
   .hiatus-count{font-size:10px; color:var(--muted); opacity:.6}
   .hiatus-list{display:flex; flex-direction:column; gap:8px}
   .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent}
-  .hiatus-row.record{border-color:var(--text); background:rgba(255,255,255,.04)}
+  .hiatus-row.record{border-color:var(--line); background:transparent}
   .hiatus-left{display:flex; flex-direction:column; gap:2px; min-width:0}
   .hiatus-label{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:500}
   .hiatus-dates{font-size:12px; color:var(--text); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -176,10 +176,6 @@
             <div class="k">Exact elapsed duration</div>
             <div class="v" id="exact">—</div>
           </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn primary" id="refreshBtn">↻ Refresh now</button>
         </div>
 
         <div class="error" id="error"></div>
@@ -333,7 +329,7 @@ async function load(){
   if(el.statusText) el.statusText.textContent = "fetching…";
   if(el.dot) el.dot.className = "dot";
   el.error.classList.remove("show");
-  el.refreshBtn.disabled = true;
+  if(el.refreshBtn) el.refreshBtn.disabled = true;
   try{
     const user = await fetchGQL();
     render(user);
@@ -350,11 +346,11 @@ async function load(){
     el.exact.textContent = "—";
     el.badge.textContent = "error";
   } finally {
-    el.refreshBtn.disabled = false;
+    if(el.refreshBtn) el.refreshBtn.disabled = false;
   }
 }
 
-el.refreshBtn.addEventListener("click", load);
+if(el.refreshBtn) el.refreshBtn.addEventListener("click", load);
 const _copy = document.getElementById("copyLink");
 if(_copy) _copy.addEventListener("click", (e)=>{
   e.preventDefault();
