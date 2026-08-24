@@ -398,7 +398,8 @@ function renderHiatus(list){
   if(!wrap || !listEl) return;
   if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; listEl.innerHTML='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; return; }
   const maxDays = Math.max(...list.map(h=>h.days));
-  countEl.textContent = list.length + " hiatuses";
+  const first = fmtHiatusDate(list[0].start);
+  countEl.textContent = `${list.length} Recorded Hiatus${list.length===1?"":"es"} · since ${first}`;
   listEl.innerHTML = list.map((h,i)=>{
     const isRecord = h.days === maxDays && list.length>1;
     const start = fmtHiatusDate(h.start);
