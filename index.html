@@ -8,10 +8,10 @@
 <style>
   :root{
     --bg:#000;
-    --text:#f5f5f5;
-    --muted:#7a7a7a;
-    --border:#1e1e1e;
-    --line:#1a1a1a;
+    --text:#ffffff;
+    --muted:#a8a8a8;
+    --border:#2a2a2a;
+    --line:#242424;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -30,7 +30,7 @@
     display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
     margin:0 auto 20px; width:100%; text-align:center;
     color:var(--muted); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-    opacity:.6;
+    opacity:.85;
   }
   .top a{color:var(--muted); text-decoration:none; border-bottom:1px solid #2a2a2a}
   .top a:hover{color:var(--text)}
@@ -54,7 +54,7 @@
     background:#111;
     object-fit:cover;
     filter:grayscale(100%);
-    opacity:.9;
+    opacity:1;
   }
   .meta{flex:none; min-width:0; text-align:center}
   .name-row{display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap}
@@ -69,12 +69,12 @@
     box-shadow:none;
     animation:none;
   }
-  .handle{color:var(--muted); font-size:12px; margin-top:2px; opacity:.6}
+  .handle{color:var(--muted); font-size:12px; margin-top:2px; opacity:.85}
   .handle a{color:var(--muted); text-decoration:none}
   .handle a:hover{color:var(--text)}
   .body{padding:0; text-align:center}
   .label{
-    font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.7;
+    font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:1;
   }
   .days{
     font-size: clamp(72px, 18vw, 112px);
@@ -85,14 +85,14 @@
     background:none; -webkit-text-fill-color:var(--text); background-clip:border-box;
     display:inline-flex; align-items:baseline; justify-content:center; gap:.14em;
   }
-  .days small{font-size:.28em; letter-spacing:.04em; font-weight:300; opacity:.35; -webkit-text-fill-color:var(--muted); margin-left:0}
+  .days small{font-size:.28em; letter-spacing:.04em; font-weight:400; opacity:.7; -webkit-text-fill-color:var(--muted); margin-left:0}
   .days.live-now{
     background:none; -webkit-text-fill-color:var(--text);
     text-shadow:none;
     font-size: clamp(44px, 12vw, 64px);
     font-weight:200;
   }
-  .sub{color:var(--muted); font-size:13px; margin-top:10px; line-height:1.5; min-height:1.2em; opacity:.7}
+  .sub{color:var(--muted); font-size:13px; margin-top:10px; line-height:1.5; min-height:1.2em; opacity:.95}
   .sub strong{color:var(--text); font-weight:500}
   .grid{
     display:grid; grid-template-columns:1fr 1fr; gap:0;
@@ -110,8 +110,8 @@
   }
   .stat:last-child{border-right:none}
   @media (max-width:520px){ .stat{border-right:none; border-bottom:1px solid var(--line); padding:0 0 16px} .stat:last-child{border-bottom:none; padding-bottom:0} }
-  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.6}
-  .stat .v{margin-top:6px; font-size:13px; font-weight:400; line-height:1.4; word-break:break-word; color:var(--text)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.9}
+  .stat .v{margin-top:6px; font-size:13px; font-weight:500; line-height:1.4; word-break:break-word; color:var(--text)}
   .stat .v.muted{color:var(--muted); font-weight:400; opacity:.8}
   .actions{display:flex; gap:8px; justify-content:center; margin-top:28px; flex-wrap:wrap}
   .btn{
