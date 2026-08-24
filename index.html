@@ -65,9 +65,18 @@
     background:transparent; color:var(--muted);
   }
   .badge.live{
-    background:var(--text); border-color:var(--text); color:var(--bg);
-    box-shadow:none;
+    background:#0e2428; border-color:#1a3a3f; color:#cfeef4;
+    box-shadow: 0 0 12px rgba(120,220,235,.18), inset 0 1px 0 rgba(255,255,255,.06);
     animation:none;
+  }
+  .badge.live .live-dot{
+    display:inline-block; color:#fff; margin-right:2px;
+    animation: liveDotPulse 1.6s infinite cubic-bezier(.4,0,.2,1);
+    text-shadow: 0 0 6px rgba(255,255,255,.9), 0 0 12px rgba(255,255,255,.7);
+  }
+  @keyframes liveDotPulse{
+    0%,100%{ opacity:.55; text-shadow: 0 0 4px rgba(255,255,255,.7), 0 0 8px rgba(255,255,255,.45); transform: scale(.96) }
+    50%{ opacity:1; text-shadow: 0 0 10px rgba(255,255,255,1), 0 0 18px rgba(255,255,255,.95), 0 0 28px rgba(255,255,255,.75); transform: scale(1.08) }
   }
   .handle{color:var(--muted); font-size:12px; margin-top:2px; opacity:.85}
   .handle a{color:var(--muted); text-decoration:none}
@@ -292,7 +301,7 @@ function render(user){
   if(user.profileImageURL) el.avatar.src = user.profileImageURL;
 
   if(isLive){
-    el.badge.textContent = "● LIVE NOW";
+    el.badge.innerHTML = '<span class="live-dot">●</span> LIVE NOW';
     el.badge.className = "badge live";
     el.label.textContent = "Currently live";
     el.days.className = "days live-now";
