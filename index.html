@@ -484,7 +484,7 @@ function renderHiatus(list){
   const maxDays = Math.max(...computed.map(h=>h.days));
   countEl.textContent = `${computed.length} Recorded Hiatus${computed.length===1?"":"es"} · Since 24 Aug 2026`;
   listEl.innerHTML = computed.map((h,i)=>{
-    const isRecord = h.days === maxDays && computed.length>1;
+    const isRecord = h.days === maxDays;
     const start = fmtHiatusDate(h.start);
     const end = h.end ? fmtHiatusDate(h.end) : "Ongoing";
     return `<div class="hiatus-row ${isRecord?"record":""}">
