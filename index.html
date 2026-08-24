@@ -312,18 +312,9 @@ function render(user){
     el.badge.style.display = "none";
     el.badge.textContent = "";
     el.badge.className = "badge";
-    // Aisu is currently (above) -> LIVE (glowing) -> after hiatus (below)
-    el.label.style.display = "";
-    el.label.textContent = "Aisu is currently";
-    el.label.style.textTransform = "none";
-    el.label.style.letterSpacing = "0";
-    el.label.style.fontSize = "13px";
-    el.label.style.color = "var(--muted)";
-    el.label.style.opacity = ".95";
-    el.label.style.marginTop = "0";
-    el.label.style.marginBottom = "8px";
-    // move label above LIVE
-    try{ el.label.parentNode.insertBefore(el.label, el.days); }catch(e){}
+    // LIVE alone (glowing), no "Aisu is currently"
+    el.label.style.display = "none";
+    el.label.textContent = "";
     el.days.className = "days live-now";
     el.days.textContent = "LIVE";
     el.subtitle.style.display = "";
