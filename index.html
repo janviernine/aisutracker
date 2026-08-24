@@ -131,11 +131,20 @@
   }
   .error.show{display:block}
 
-  .hiatus{margin-top:28px; border-top:1px solid var(--line); padding-top:20px}
-  .hiatus-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px}
-  .hiatus-title{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.9}
-  .hiatus-count{font-size:10px; color:var(--muted); opacity:.6}
-  .hiatus-list{display:flex; flex-direction:column; gap:8px}
+  .hiatus{margin-top:28px; border-top:1px solid var(--line); padding-top:6px}
+  .hiatus-head{width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 4px; background:transparent; border:none; border-radius:10px; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent; transition: background .15s, opacity .15s}
+  .hiatus-head:hover{background: rgba(255,255,255,.04)}
+  .hiatus-head:active{background: rgba(255,255,255,.06)}
+  .hiatus-head:focus-visible{outline:1px solid #333; outline-offset:2px}
+  .hiatus-head-left{display:flex; flex-direction:column; gap:3px; min-width:0}
+  .hiatus-title{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.9; display:flex; align-items:center; gap:6px}
+  .hiatus-count{font-size:10px; color:var(--muted); opacity:.55; font-weight:400}
+  .hiatus-chevron{flex-shrink:0; width:20px; height:20px; display:grid; place-items:center; border:1px solid var(--line); border-radius:999px; background: transparent; transition: transform .22s cubic-bezier(.4,0,.2,1), border-color .15s, background .15s; color:var(--muted)}
+  .hiatus-chevron svg{width:10px; height:10px; display:block; transition: transform .22s cubic-bezier(.4,0,.2,1)}
+  .hiatus.open .hiatus-chevron{background: rgba(255,255,255,.06); border-color:#333; color:var(--text)}
+  .hiatus.open .hiatus-chevron svg{transform: rotate(180deg)}
+  .hiatus-list{display:flex; flex-direction:column; gap:8px; overflow:hidden; max-height:0; opacity:0; transform: translateY(-4px); transition: max-height .32s cubic-bezier(.4,0,.2,1), opacity .22s ease, transform .22s ease; pointer-events:none}
+  .hiatus.open .hiatus-list{max-height:800px; opacity:1; transform: translateY(0); pointer-events:auto; margin-top:6px; padding-bottom:4px}
   .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent}
   .hiatus-row.record{border-color:var(--line); background:transparent}
   .hiatus-left{display:flex; flex-direction:column; gap:2px; min-width:0}
@@ -198,10 +207,13 @@
       </div>
     </div>
     <div class="hiatus" id="hiatus">
-      <div class="hiatus-head">
-        <div class="hiatus-title">Hiatus history</div>
-        <div class="hiatus-count" id="hiatusCount">—</div>
-      </div>
+      <button type="button" class="hiatus-head" id="hiatusToggle" aria-expanded="false" aria-controls="hiatusList">
+        <span class="hiatus-head-left">
+          <span class="hiatus-title">View hiatus history</span>
+          <span class="hiatus-count" id="hiatusCount">—</span>
+        </span>
+        <span class="hiatus-chevron" aria-hidden="true"><svg viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </button>
       <div class="hiatus-list" id="hiatusList"></div>
     </div>
   </div>
@@ -418,6 +430,16 @@ function renderHiatus(list){
 
 // render mock on load
 renderHiatus(MOCK_HIATUS);
+
+// dropdown toggle
+const hiatusWrap = document.getElementById("hiatus");
+const hiatusBtn = document.getElementById("hiatusToggle");
+if(hiatusBtn && hiatusWrap){
+  hiatusBtn.addEventListener("click", ()=>{
+    const open = hiatusWrap.classList.toggle("open");
+    hiatusBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+}
 
 load();
 setInterval(load, REFRESH_MS);
