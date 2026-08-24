@@ -142,10 +142,10 @@
   .hiatus-dates{font-size:12px; color:var(--text); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .hiatus-right{display:flex; align-items:center; gap:8px; flex-shrink:0}
   .hiatus-days{font-size:13px; font-weight:600; color:var(--text); letter-spacing:-.02em}
-  .hiatus-badge{font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:999px; background: linear-gradient(90deg, #b8932f 0%, #ffd700 20%, #ffec8b 45%, #ffd700 70%, #b8932f 100%); background-size:300% 100%; color:#1a1200; font-weight:700; border:1px solid #d4af37; box-shadow:0 0 10px rgba(255,215,0,.35); animation: goldShimmer 2.8s infinite linear; position:relative; overflow:hidden}
-  @keyframes goldShimmer{0%{background-position:0% 0} 100%{background-position:300% 0}}
-  .hiatus-badge::after{content:""; position:absolute; top:0; left:-70%; width:50%; height:100%; background:linear-gradient(120deg, transparent 20%, rgba(255,255,255,.75) 45%, transparent 70%); transform:skewX(-14deg); animation: goldGlisten 2.2s infinite linear}
-  @keyframes goldGlisten{0%{left:-70%} 100%{left:130%}}
+  .hiatus-badge{font-size:9px; letter-spacing:.11em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background: linear-gradient(105deg, #ffffff 0%, #fafafa 18%, #ffffff 32%, #f0f4ff 48%, #ffffff 62%, #f5f5f5 78%, #ffffff 100%); background-size:300% 100%; color:#0a0a0a; font-weight:700; border:1px solid #e8e8e8; box-shadow:0 0 10px rgba(255,255,255,.55), 0 0 18px rgba(180,205,255,.28), inset 0 1px 0 rgba(255,255,255,.9); animation: diamondShimmer 2.6s infinite linear; position:relative; overflow:hidden}
+  @keyframes diamondShimmer{0%{background-position:0% 0} 100%{background-position:300% 0}}
+  .hiatus-badge::after{content:""; position:absolute; top:-2px; left:-70%; width:55%; height:calc(100% + 4px); background:linear-gradient(115deg, transparent 15%, rgba(255,255,255,.95) 42%, rgba(200,225,255,.85) 50%, rgba(255,255,255,.92) 58%, transparent 76%); transform:skewX(-16deg); animation: diamondGlisten 1.9s infinite linear}
+  @keyframes diamondGlisten{0%{left:-70%} 100%{left:135%}}
 
 </style>
 </head>
