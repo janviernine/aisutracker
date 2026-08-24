@@ -185,15 +185,6 @@
 
         <div class="error" id="error"></div>
       </div>
-
-      <div class="footer">
-        <span><span id="dot" class="dot"></span> <span id="statusText">connecting…</span> <span id="updated" class="mono" style="margin-left:6px; opacity:.8"></span></span>
-        <span>Built for <strong style="color:var(--text)">KBG</strong> · GQL Client-ID: <span class="mono">kimne78…</span> · <a href="#" id="copyLink">copy share text</a></span>
-      </div>
-    </div>
-
-    <div style="text-align:center; margin-top:14px; color:#7a7a7a; font-size:12px">
-      File is local on your Desktop — double-click to open. No token needed. If Twitch changes GQL, tell me and I'll patch the hash.
     </div>
   </div>
 
@@ -326,16 +317,16 @@ function render(user){
     }
   }
 
-  el.dot.className = "dot";
-  el.statusText.textContent = isLive ? "live" : "offline — updated";
-  el.updated.textContent = "· " + now.toLocaleTimeString("en-IN", {timeZone:"Asia/Kolkata", hour:"2-digit", minute:"2-digit", second:"2-digit"}) + " IST";
+  el.dot && (el.dot.className = "dot");
+  if(el.statusText) el.statusText.textContent = isLive ? "live" : "offline — updated";
+  if(el.updated) el.updated.textContent = "· " + now.toLocaleTimeString("en-IN", {timeZone:"Asia/Kolkata", hour:"2-digit", minute:"2-digit", second:"2-digit"}) + " IST";
   el.error.classList.remove("show");
   el.error.textContent = "";
 }
 
 async function load(){
-  el.statusText.textContent = "fetching…";
-  el.dot.className = "dot";
+  if(el.statusText) el.statusText.textContent = "fetching…";
+  if(el.dot) el.dot.className = "dot";
   el.error.classList.remove("show");
   el.refreshBtn.disabled = true;
   try{
@@ -345,8 +336,8 @@ async function load(){
     console.error(e);
     el.days.textContent = "—";
     el.subtitle.textContent = "Could not fetch Twitch data.";
-    el.dot.className = "dot err";
-    el.statusText.textContent = "error";
+    if(el.dot) el.dot.className = "dot err";
+    if(el.statusText) el.statusText.textContent = "error";
     el.error.textContent = "Fetch failed: " + (e.message || e) + " — Twitch GQL may be rate-limited or CORS-blocked if you opened the file via file:// in some browsers. Try opening via http:// (or tell me and I’ll add a CORS proxy fallback).";
     el.error.classList.add("show");
     el.ist.textContent = "—";
@@ -359,7 +350,8 @@ async function load(){
 }
 
 el.refreshBtn.addEventListener("click", load);
-document.getElementById("copyLink").addEventListener("click", (e)=>{
+const _copy = document.getElementById("copyLink");
+if(_copy) _copy.addEventListener("click", (e)=>{
   e.preventDefault();
   const t = el.days.textContent.trim() + " — " + el.subtitle.textContent.replace(/<[^>]*>/g,"") + " (twitch.tv/aisuchu)";
   navigator.clipboard.writeText(t).then(()=>{
