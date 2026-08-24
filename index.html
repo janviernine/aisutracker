@@ -156,25 +156,14 @@
         <div class="days" id="days">—</div>
         <div class="sub" id="subtitle">Loading last broadcast…</div>
 
-        <div class="grid">
+        <div class="grid" style="grid-template-columns:1fr 1fr">
           <div class="stat">
             <div class="k">Last live</div>
             <div class="v" id="ist">—</div>
           </div>
           <div class="stat">
-            <div class="k">Last live (UTC)</div>
-            <div class="v muted mono" id="utc">—</div>
-          </div>
-          <div class="stat">
             <div class="k">Exact elapsed</div>
             <div class="v" id="exact">—</div>
-          </div>
-          <div class="stat">
-            <div class="k">Source</div>
-            <div class="v muted" style="font-size:12px;line-height:1.5">
-              Twitch GQL <span class="mono">lastBroadcast.startedAt</span><br>
-              <span style="color:var(--muted)">works even with VODs disabled</span>
-            </div>
           </div>
         </div>
 
@@ -276,11 +265,11 @@ function render(user){
     // still show lastBroadcast underneath
     if(startedAt){
       el.ist.textContent = fmtLocal(startedAt) + " (this stream)";
-      el.utc.textContent = fmtUTC(startedAt);
+      if(el.utc) el.utc.textContent = fmtUTC(startedAt);
       el.exact.textContent = "Live — started " + fmtLocal(startedAt);
     } else {
       el.ist.textContent = "— (no prior broadcast found)";
-      el.utc.textContent = "—";
+      if(el.utc) el.utc.textContent = "—";
       el.exact.textContent = "Live now";
     }
   } else {
@@ -294,7 +283,7 @@ function render(user){
       el.subtitle.style.display = "";
       el.subtitle.textContent = "No last broadcast found for this channel.";
       el.ist.textContent = "—";
-      el.utc.textContent = "—";
+      if(el.utc) el.utc.textContent = "—";
       el.exact.textContent = "—";
     } else {
       const diffMs = now - startedAt;
@@ -311,7 +300,7 @@ function render(user){
       else { el.subtitle.style.display = "none"; el.subtitle.innerHTML = ""; }
 
       el.ist.textContent = fmtLocal(startedAt);
-      el.utc.textContent = fmtUTC(startedAt);
+      if(el.utc) el.utc.textContent = fmtUTC(startedAt);
       el.exact.textContent = `${plural(p.d,"day")}, ${plural(p.h,"hour")}, ${plural(p.m,"min")} ago`;
     }
   }
@@ -340,7 +329,7 @@ async function load(){
     el.error.textContent = "Fetch failed: " + (e.message || e) + " — Twitch GQL may be rate-limited or CORS-blocked if you opened the file via file:// in some browsers. Try opening via http:// (or tell me and I’ll add a CORS proxy fallback).";
     el.error.classList.add("show");
     el.ist.textContent = "—";
-    el.utc.textContent = "—";
+    if(el.utc) el.utc.textContent = "—";
     el.exact.textContent = "—";
     el.badge.textContent = "error";
   } finally {
