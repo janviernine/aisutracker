@@ -16,8 +16,8 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
-    height:100vh; height:100dvh;
-    overflow:hidden;
+    min-height:100vh; min-height:100dvh;
+    overflow:auto;
     background:var(--bg);
     color:var(--text);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
@@ -25,7 +25,7 @@
     padding:24px;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{width:min(520px,100%); max-height:100%; display:flex; flex-direction:column; justify-content:center;}
+  .wrap{width:min(520px,100%); display:flex; flex-direction:column; justify-content:center; padding:24px 0;}
   .top{
     display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
     margin:0 auto 20px; width:100%; text-align:center;
@@ -129,6 +129,21 @@
     color:var(--muted); padding:10px 12px; border-radius:8px; font-size:12px; display:none; text-align:left;
   }
   .error.show{display:block}
+
+  .hiatus{margin-top:28px; border-top:1px solid var(--line); padding-top:20px}
+  .hiatus-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px}
+  .hiatus-title{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.9}
+  .hiatus-count{font-size:10px; color:var(--muted); opacity:.6}
+  .hiatus-list{display:flex; flex-direction:column; gap:8px}
+  .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent}
+  .hiatus-row.record{border-color:var(--text); background:rgba(255,255,255,.04)}
+  .hiatus-left{display:flex; flex-direction:column; gap:2px; min-width:0}
+  .hiatus-label{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .hiatus-dates{font-size:12px; color:var(--text); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .hiatus-right{display:flex; align-items:center; gap:8px; flex-shrink:0}
+  .hiatus-days{font-size:13px; font-weight:600; color:var(--text); letter-spacing:-.02em}
+  .hiatus-badge{font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:3px 6px; border-radius:999px; background:var(--text); color:var(--bg); font-weight:600}
+
 </style>
 </head>
 <body>
@@ -169,6 +184,13 @@
 
         <div class="error" id="error"></div>
       </div>
+    </div>
+    <div class="hiatus" id="hiatus">
+      <div class="hiatus-head">
+        <div class="hiatus-title">Hiatus history</div>
+        <div class="hiatus-count" id="hiatusCount">—</div>
+      </div>
+      <div class="hiatus-list" id="hiatusList"></div>
     </div>
   </div>
 
@@ -341,6 +363,49 @@ if(_copy) _copy.addEventListener("click", (e)=>{
     const a = e.target; const old=a.textContent; a.textContent="copied!"; setTimeout(()=>a.textContent=old,1200);
   });
 });
+
+// --- MOCK HIATUS DATA (for visual test, will be replaced by real log) ---
+const MOCK_HIATUS = [
+  { start: "2026-08-01", end: "2026-08-26", days: 25 },
+  { start: "2026-09-01", end: "2026-09-29", days: 28 },
+  { start: "2026-10-05", end: "2026-10-18", days: 13 },
+  { start: "2026-11-02", end: "2026-11-25", days: 23 },
+];
+
+function fmtHiatusDate(iso){
+  const d = new Date(iso + "T12:00:00");
+  // DD MMM YYYY in local, same style as Last live
+  const s = d.toLocaleString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+  return s;
+}
+
+function renderHiatus(list){
+  const wrap = document.getElementById("hiatus");
+  const listEl = document.getElementById("hiatusList");
+  const countEl = document.getElementById("hiatusCount");
+  if(!wrap || !listEl) return;
+  if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; listEl.innerHTML='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; return; }
+  const maxDays = Math.max(...list.map(h=>h.days));
+  countEl.textContent = list.length + " hiatuses";
+  listEl.innerHTML = list.map((h,i)=>{
+    const isRecord = h.days === maxDays && list.length>1;
+    const start = fmtHiatusDate(h.start);
+    const end = fmtHiatusDate(h.end);
+    return `<div class="hiatus-row ${isRecord?"record":""}">
+      <div class="hiatus-left">
+        <div class="hiatus-label">Hiatus ${i+1}</div>
+        <div class="hiatus-dates">${start} → ${end}</div>
+      </div>
+      <div class="hiatus-right">
+        <div class="hiatus-days">${h.days} DAYS</div>
+        ${isRecord?'<span class="hiatus-badge">Personal Record</span>':''}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// render mock on load
+renderHiatus(MOCK_HIATUS);
 
 load();
 setInterval(load, REFRESH_MS);
