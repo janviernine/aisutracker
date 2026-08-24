@@ -142,11 +142,19 @@
   .hiatus-dates{font-size:12px; color:var(--text); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .hiatus-right{display:flex; align-items:center; gap:8px; flex-shrink:0}
   .hiatus-days{font-size:13px; font-weight:600; color:var(--text); letter-spacing:-.02em}
-  .hiatus-badge{font-size:9px; letter-spacing:.11em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background: linear-gradient(105deg, #ffffff 0%, #fafafa 18%, #ffffff 32%, #f0f4ff 48%, #ffffff 62%, #f5f5f5 78%, #ffffff 100%); background-size:300% 100%; color:#0a0a0a; font-weight:700; border:1px solid #e8e8e8; box-shadow:0 0 10px rgba(255,255,255,.45), 0 0 18px rgba(180,205,255,.20), inset 0 1px 0 rgba(255,255,255,.9); animation: diamondShimmer 6s infinite ease-in-out; position:relative; overflow:hidden; isolation:isolate}
-  @keyframes diamondShimmer{0%{background-position:0% 0} 50%{background-position:100% 0} 100%{background-position:0% 0}}
-  .hiatus-badge::after{content:""; position:absolute; top:-2px; left:-70%; width:45%; height:calc(100% + 4px); background:linear-gradient(115deg, transparent 25%, rgba(255,255,255,.45) 45%, rgba(210,230,255,.5) 50%, rgba(255,255,255,.4) 55%, transparent 78%); transform:skewX(-16deg); animation: diamondGlisten 4.2s infinite ease-in-out; pointer-events:none; z-index:0; opacity:.85}
-  @keyframes diamondGlisten{0%{left:-70%; opacity:0} 12%{opacity:.85} 48%{left:135%; opacity:.85} 50%{opacity:0} 100%{opacity:0}}
+  .hiatus-badge{font-size:9px; letter-spacing:.11em; text-transform:uppercase; padding:4px 12px 4px 10px; border-radius:999px; background: linear-gradient(105deg, #ffffff 0%, #fefefe 20%, #ffffff 38%, #f8fbff 52%, #ffffff 68%, #ffffff 100%); background-size:350% 100%; color:#0a0a0a; font-weight:700; border:1px solid #e8e8e8; box-shadow:0 0 12px rgba(255,255,255,.7), 0 0 22px rgba(255,255,255,.35), inset 0 1px 0 rgba(255,255,255,1); animation: diamondShimmer 3.2s infinite linear; position:relative; overflow:hidden; isolation:isolate}
+  @keyframes diamondShimmer{0%{background-position:0% 0} 100%{background-position:350% 0}}
+  .hiatus-badge::after{content:""; position:absolute; top:-2px; left:-65%; width:42%; height:calc(100% + 4px); background:linear-gradient(108deg, transparent 18%, rgba(255,255,255,.95) 38%, rgba(255,255,255,1) 48%, rgba(255,255,255,.9) 58%, transparent 75%); transform:skewX(-14deg); animation: diamondGlisten 1.8s infinite linear; pointer-events:none; z-index:0}
+  @keyframes diamondGlisten{0%{left:-65%} 100%{left:135%}}
   .hiatus-badge span{position:relative; z-index:1}
+  .hiatus-badge .spark{position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; pointer-events:none; z-index:2; box-shadow:0 0 6px 1px rgba(255,255,255,1), 0 0 10px 2px rgba(255,255,255,.6); opacity:0}
+  .hiatus-badge .spark::before{content:""; position:absolute; inset:-2px; background:radial-gradient(circle, rgba(255,255,255,1) 0%, transparent 70%); border-radius:50%}
+  .hiatus-badge .s1{top:3px; left:18%; animation: sparkle 1.4s infinite ease-in-out}
+  .hiatus-badge .s2{top:7px; right:22%; animation: sparkle 1.4s infinite ease-in-out .45s}
+  .hiatus-badge .s3{bottom:4px; left:44%; width:2px; height:2px; animation: sparkle 1.2s infinite ease-in-out .85s}
+  @keyframes sparkle{0%,100%{opacity:0; transform:scale(.4) rotate(0deg)} 50%{opacity:1; transform:scale(1.6) rotate(90deg)}}
+  .hiatus-badge::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent); opacity:0; animation: edgeTwinkle 1.8s infinite ease-in-out; pointer-events:none; z-index:0}
+  @keyframes edgeTwinkle{0%,100%{opacity:0} 50%{opacity:.35}}
 
 </style>
 </head>
@@ -396,7 +404,7 @@ function renderHiatus(list){
       </div>
       <div class="hiatus-right">
         <div class="hiatus-days">${h.days} DAYS</div>
-        ${isRecord?'<span class="hiatus-badge"><span>Personal Record</span></span>':''}
+        ${isRecord?'<span class="hiatus-badge"><span>Personal Record</span><i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i></span>':''}
       </div>
     </div>`;
   }).join("");
