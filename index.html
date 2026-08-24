@@ -142,10 +142,11 @@
   .hiatus-dates{font-size:12px; color:var(--text); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .hiatus-right{display:flex; align-items:center; gap:8px; flex-shrink:0}
   .hiatus-days{font-size:13px; font-weight:600; color:var(--text); letter-spacing:-.02em}
-  .hiatus-badge{font-size:9px; letter-spacing:.11em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background: linear-gradient(105deg, #ffffff 0%, #fafafa 18%, #ffffff 32%, #f0f4ff 48%, #ffffff 62%, #f5f5f5 78%, #ffffff 100%); background-size:300% 100%; color:#0a0a0a; font-weight:700; border:1px solid #e8e8e8; box-shadow:0 0 10px rgba(255,255,255,.55), 0 0 18px rgba(180,205,255,.28), inset 0 1px 0 rgba(255,255,255,.9); animation: diamondShimmer 2.6s infinite linear; position:relative; overflow:hidden}
-  @keyframes diamondShimmer{0%{background-position:0% 0} 100%{background-position:300% 0}}
-  .hiatus-badge::after{content:""; position:absolute; top:-2px; left:-70%; width:55%; height:calc(100% + 4px); background:linear-gradient(115deg, transparent 15%, rgba(255,255,255,.95) 42%, rgba(200,225,255,.85) 50%, rgba(255,255,255,.92) 58%, transparent 76%); transform:skewX(-16deg); animation: diamondGlisten 1.9s infinite linear}
-  @keyframes diamondGlisten{0%{left:-70%} 100%{left:135%}}
+  .hiatus-badge{font-size:9px; letter-spacing:.11em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background: linear-gradient(105deg, #ffffff 0%, #fafafa 18%, #ffffff 32%, #f0f4ff 48%, #ffffff 62%, #f5f5f5 78%, #ffffff 100%); background-size:300% 100%; color:#0a0a0a; font-weight:700; border:1px solid #e8e8e8; box-shadow:0 0 10px rgba(255,255,255,.45), 0 0 18px rgba(180,205,255,.20), inset 0 1px 0 rgba(255,255,255,.9); animation: diamondShimmer 6s infinite ease-in-out; position:relative; overflow:hidden; isolation:isolate}
+  @keyframes diamondShimmer{0%{background-position:0% 0} 50%{background-position:100% 0} 100%{background-position:0% 0}}
+  .hiatus-badge::after{content:""; position:absolute; top:-2px; left:-70%; width:45%; height:calc(100% + 4px); background:linear-gradient(115deg, transparent 25%, rgba(255,255,255,.45) 45%, rgba(210,230,255,.5) 50%, rgba(255,255,255,.4) 55%, transparent 78%); transform:skewX(-16deg); animation: diamondGlisten 4.2s infinite ease-in-out; pointer-events:none; z-index:0; opacity:.85}
+  @keyframes diamondGlisten{0%{left:-70%; opacity:0} 12%{opacity:.85} 48%{left:135%; opacity:.85} 50%{opacity:0} 100%{opacity:0}}
+  .hiatus-badge span{position:relative; z-index:1}
 
 </style>
 </head>
@@ -395,7 +396,7 @@ function renderHiatus(list){
       </div>
       <div class="hiatus-right">
         <div class="hiatus-days">${h.days} DAYS</div>
-        ${isRecord?'<span class="hiatus-badge">Personal Record</span>':''}
+        ${isRecord?'<span class="hiatus-badge"><span>Personal Record</span></span>':''}
       </div>
     </div>`;
   }).join("");
