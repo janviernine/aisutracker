@@ -231,7 +231,7 @@
 
         <div class="grid" style="grid-template-columns:1fr 1fr">
           <div class="stat">
-            <div class="k">Last live</div>
+            <div class="k">Last live (ended)</div>
             <div class="v" id="ist">—</div>
           </div>
           <div class="stat">
@@ -278,9 +278,7 @@ const el = {
   refreshBtn: document.getElementById("refreshBtn"),
 };
 
-function fmtIST(date){
-  return date.toLocaleString("en-IN", { timeZone:"Asia/Kolkata", weekday:"short", year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true }) + " IST";
-}
+
 function fmtLocal(date){
   try{
     // DD MMM YYYY, hh:mm A  (e.g. 08 Aug 2026, 11:23 AM) in viewer's local timezone, no seconds/tz clutter
@@ -460,10 +458,22 @@ if(_copy) _copy.addEventListener("click", (e)=>{
 });
 
 // --- MOCK HIATUS DATA (for visual test, will be replaced by real log) ---
-// --- CURRENT HIATUS (verified 08 Aug 2026 05:53 UTC via GQL lastBroadcast) ---
+// --- HIATUS 1 (closed): 08 Aug 2026 → 29 Aug 2026 = 21 days ---
+// RULE for the real log: a hiatus closes the moment a stream starts after
+// hiatus.start — stamp end+days once at close time, never recompute vs today.
+// Only a hiatus with NO stream since (end:null) may use now as its end.
 const MOCK_HIATUS = [
-  { start: "2026-08-08", end: null, days: null }, // ongoing — end/days computed at render
+  { start: "2026-08-08", end: "2026-08-29", days: 21 },
 ];
+
+// helper for the real log: close an open hiatus the moment a new stream starts
+function closeHiatus(h, streamDate){
+  const s = new Date(h.start + "T00:00:00Z");
+  const e = new Date(streamDate);
+  h.end = e.toISOString().slice(0,10);
+  h.days = Math.max(0, Math.floor((e - s)/86400000));
+  return h;
+}
 
 function fmtHiatusDate(iso){
   const d = new Date(iso + "T12:00:00");
@@ -481,13 +491,14 @@ function renderHiatus(list){
   // compute days for ongoing (end=null) as now - start (floor days)
   const computed = list.map(h=>{
     if(h.end && h.days) return h;
-    const s = new Date(h.start + "T05:53:31Z");
+    const s = new Date(h.start + "T00:00:00Z"); // start-of-day UTC anchor for open hiatuses
     const now = new Date();
     const days = Math.max(0, Math.floor((now - s)/86400000));
     return { ...h, days, end: h.end || null };
   });
   const maxDays = Math.max(...computed.map(h=>h.days));
-  countEl.textContent = `${computed.length} Recorded Hiatus${computed.length===1?"":"es"} · Since 24 Aug 2026`;
+  const earliest = computed.map(h=>h.start).sort()[0];
+  countEl.textContent = `${computed.length} Recorded Hiatus${computed.length===1?"":"es"} · Since ${fmtHiatusDate(earliest)}`;
   listEl.innerHTML = computed.map((h,i)=>{
     const isRecord = h.days === maxDays;
     const start = fmtHiatusDate(h.start);
