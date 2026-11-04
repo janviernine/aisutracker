@@ -458,11 +458,26 @@ if(_copy) _copy.addEventListener("click", (e)=>{
 });
 
 // --- MOCK HIATUS DATA (for visual test, will be replaced by real log) ---
-// --- HIATUS 1 (closed): 08 Aug 2026 → 29 Aug 2026 = 21 days ---
-// RULE for the real log: a hiatus closes the moment a stream starts after
-// hiatus.start — stamp end+days once at close time, never recompute vs today.
-// Only a hiatus with NO stream since (end:null) may use now as its end.
+// --- HIATUS LOG (backfilled from Twitch notification email history, Sep 2025 - Aug 2026) ---
+// RULE: a hiatus closes the moment a stream starts after hiatus.start — stamp
+// end+days once at close time, never recompute vs today. Only a hiatus with NO
+// stream since (end:null) may use now as its end. Threshold: gaps >= 7 days.
 const MOCK_HIATUS = [
+  { start: "2025-09-01", end: "2025-09-28", days: 27 },
+  { start: "2025-09-28", end: "2025-10-25", days: 27 },
+  { start: "2025-11-03", end: "2025-11-28", days: 25 },
+  { start: "2025-11-28", end: "2025-12-05", days: 7 },
+  { start: "2025-12-05", end: "2025-12-20", days: 15 },
+  { start: "2025-12-23", end: "2026-01-11", days: 19 },
+  { start: "2026-01-11", end: "2026-01-21", days: 10 },
+  { start: "2026-01-25", end: "2026-02-09", days: 15 },
+  { start: "2026-02-13", end: "2026-02-22", days: 9 },
+  { start: "2026-02-22", end: "2026-03-29", days: 35 },
+  { start: "2026-03-29", end: "2026-05-22", days: 54 },
+  { start: "2026-05-24", end: "2026-06-09", days: 16 },
+  { start: "2026-06-09", end: "2026-06-17", days: 8 },
+  { start: "2026-06-17", end: "2026-07-19", days: 32 },
+  { start: "2026-07-19", end: "2026-08-08", days: 20 },
   { start: "2026-08-08", end: "2026-08-29", days: 21 },
 ];
 
