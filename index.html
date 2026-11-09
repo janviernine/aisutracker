@@ -25,7 +25,7 @@
     padding:24px;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{width:min(520px,100%); display:flex; flex-direction:column; justify-content:center; padding:24px 0;}
+  .wrap{width:min(520px,100%); display:flex; flex-direction:column; justify-content:center; padding:24px 0; margin:auto;}
   .top{
     display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
     margin:0 auto 20px; width:100%; text-align:center;
@@ -168,7 +168,7 @@
   .hiatus-collapsible{ display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .58s cubic-bezier(.22,1,.36,1) .06s, opacity .36s ease-out .02s; will-change: grid-template-rows }
   .hiatus.open .hiatus-collapsible{ grid-template-rows: 1fr; opacity:1; transition: grid-template-rows .58s cubic-bezier(.22,1,.36,1), opacity .36s ease-out }
   .hiatus-collapsible > .hiatus-list{ overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:8px; padding-bottom:0; margin-top:0; transition: margin-top .58s cubic-bezier(.22,1,.36,1) .06s, padding-bottom .58s cubic-bezier(.22,1,.36,1) .06s }
-  .hiatus.open .hiatus-collapsible > .hiatus-list{ margin-top:10px; padding-bottom:4px; transition: margin-top .58s cubic-bezier(.22,1,.36,1), padding-bottom .58s cubic-bezier(.22,1,.36,1) }
+  .hiatus.open .hiatus-collapsible > .hiatus-list{ margin-top:10px; padding-bottom:4px; max-height:55vh; overflow-y:auto; overscroll-behavior:contain; transition: margin-top .58s cubic-bezier(.22,1,.36,1), padding-bottom .58s cubic-bezier(.22,1,.36,1) }
   .hiatus-list{ display:flex; flex-direction:column; gap:8px }
   .hiatus-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:transparent; opacity:0; transform: translateY(6px); transition: opacity .32s ease-out, transform .46s cubic-bezier(.22,1,.36,1), border-color .2s ease}
   .hiatus.open .hiatus-row{opacity:1; transform: translateY(0); transition: opacity .32s ease-out, transform .46s cubic-bezier(.22,1,.36,1), border-color .2s ease}
@@ -512,7 +512,7 @@ function renderHiatus(list){
   if(!wrap || !listEl) return;
   if(!list || list.length===0){ countEl.textContent="no hiatuses yet"; listEl.innerHTML='<div style="color:var(--muted);font-size:12px;opacity:.6">No gaps logged yet.</div>'; return; }
   // compute days for ongoing (end=null) as now - start (floor days)
-  const computed = list.map(h=>{
+  let computed = list.map(h=>{
     if(h.end && h.days) return h;
     const s = new Date(h.start + "T00:00:00Z"); // start-of-day UTC anchor for open hiatuses
     const now = new Date();
@@ -520,6 +520,7 @@ function renderHiatus(list){
     return { ...h, days, end: h.end || null };
   });
   const maxDays = Math.max(...computed.map(h=>h.days));
+  computed = computed.slice().sort((a,b)=> String(b.start).localeCompare(String(a.start)));
   const earliest = computed.map(h=>h.start).sort()[0];
   countEl.textContent = `${computed.length} Recorded Hiatus${computed.length===1?"":"es"} · Since ${fmtHiatusDate(earliest)}`;
   listEl.innerHTML = computed.map((h,i)=>{
