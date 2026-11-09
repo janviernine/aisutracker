@@ -26,14 +26,6 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{width:min(520px,100%); display:flex; flex-direction:column; justify-content:center; padding:24px 0; margin:auto;}
-  .top{
-    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
-    margin:0 auto 20px; width:100%; text-align:center;
-    color:var(--muted); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-    opacity:.85;
-  }
-  .top a{color:var(--muted); text-decoration:none; border-bottom:1px solid #2a2a2a}
-  .top a:hover{color:var(--text)}
   .card{
     background:transparent;
     border:none;
@@ -107,14 +99,6 @@
     0%,100%{ opacity:.90; text-shadow: 0 0 10px rgba(255,255,255,.58), 0 0 20px rgba(255,255,255,.32) }
     50%{ opacity:1; text-shadow: 0 0 12px rgba(255,255,255,.88), 0 0 24px rgba(255,255,255,.52), 0 0 34px rgba(255,255,255,.26) }
   }
-  @keyframes offlineGlow{
-    0%,100%{ opacity:.90; text-shadow: 0 0 10px rgba(255,59,48,.58), 0 0 20px rgba(255,59,48,.32) }
-    50%{ opacity:1; text-shadow: 0 0 12px rgba(255,59,48,.88), 0 0 24px rgba(255,59,48,.52), 0 0 34px rgba(255,59,48,.28) }
-  }
-  .live-glow{
-    color:#fff; font-weight:600;
-    animation: liveTextGlow 3.8s infinite ease-in-out;
-  }
   .sub{color:var(--muted); font-size:13px; margin-top:10px; line-height:1.5; min-height:1.2em; opacity:.95}
   .sub strong{color:var(--text); font-weight:500}
   .grid{
@@ -136,17 +120,6 @@
   .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; opacity:.9}
   .stat .v{margin-top:6px; font-size:13px; font-weight:500; line-height:1.4; word-break:break-word; color:var(--text)}
   .stat .v.muted{color:var(--muted); font-weight:400; opacity:.8}
-  .actions{display:flex; gap:8px; justify-content:center; margin-top:28px; flex-wrap:wrap}
-  .btn{
-    appearance:none; border:1px solid var(--line); background:transparent; color:var(--text);
-    padding:8px 14px; border-radius:999px; font-weight:400; font-size:12px; cursor:pointer;
-    display:inline-flex; align-items:center; gap:6px;
-    transition:.15s; opacity:.7;
-  }
-  .btn:hover{border-color:#333; background:transparent; transform:none; opacity:1}
-  .btn.primary{background:var(--text); border-color:var(--text); color:var(--bg); opacity:1}
-  .btn.primary:hover{background:#fff; border-color:#fff}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:11px}
   .error{
     margin-top:16px; background:transparent; border:1px solid #222;
     color:var(--muted); padding:10px 12px; border-radius:8px; font-size:12px; display:none; text-align:left;
@@ -177,7 +150,7 @@
   .hiatus.open .hiatus-row:nth-child(3){ transition-delay: .114s }
   .hiatus.open .hiatus-row:nth-child(4){ transition-delay: .152s }
   .hiatus.open .hiatus-row:nth-child(5){ transition-delay: .190s }
-  .hiatus.open .hiatus-row:nth-child(n+6){ transition-delay: .228s }
+  .hiatus.open .hiatus-row:nth-child(n+6){ transition-delay: 0s; opacity:1; transform:none; transition:none }
   .hiatus:not(.open) .hiatus-row:nth-child(1){ transition-delay: .152s }
   .hiatus:not(.open) .hiatus-row:nth-child(2){ transition-delay: .114s }
   .hiatus:not(.open) .hiatus-row:nth-child(3){ transition-delay: .076s }
@@ -267,15 +240,10 @@ const el = {
   subtitle: document.getElementById("subtitle"),
   badge: document.getElementById("badge"),
   ist: document.getElementById("ist"),
-  utc: document.getElementById("utc"),
   exact: document.getElementById("exact"),
   error: document.getElementById("error"),
-  dot: document.getElementById("dot"),
-  statusText: document.getElementById("statusText"),
-  updated: document.getElementById("updated"),
   avatar: document.getElementById("avatar"),
   displayName: document.getElementById("displayName"),
-  refreshBtn: document.getElementById("refreshBtn"),
 };
 
 
@@ -288,9 +256,6 @@ function fmtLocal(date){
   } catch(e){
     return date.toLocaleString();
   }
-}
-function fmtUTC(date){
-  return date.toISOString().replace("T"," ").replace("Z"," UTC");
 }
 function elapsedParts(ms){
   const s = Math.floor(ms/1000);
@@ -357,11 +322,9 @@ function render(user){
     // still show lastBroadcast underneath
     if(startedAt){
       el.ist.textContent = fmtLocal(startedAt) + " (this stream)";
-      if(el.utc) el.utc.textContent = fmtUTC(startedAt);
       el.exact.textContent = "Live — started " + fmtLocal(startedAt);
     } else {
       el.ist.textContent = "— (no prior broadcast found)";
-      if(el.utc) el.utc.textContent = "—";
       el.exact.textContent = "Live now";
     }
   } else {
@@ -386,7 +349,6 @@ function render(user){
       el.subtitle.style.display = "";
       el.subtitle.textContent = "No last broadcast found for this channel.";
       el.ist.textContent = "—";
-      if(el.utc) el.utc.textContent = "—";
       el.exact.textContent = "—";
     } else {
       const diffMs = now - startedAt;
@@ -403,23 +365,16 @@ function render(user){
       else { el.subtitle.style.display = "none"; el.subtitle.innerHTML = ""; }
 
       el.ist.textContent = fmtLocal(startedAt);
-      if(el.utc) el.utc.textContent = fmtUTC(startedAt);
       el.exact.textContent = `${plural(p.d,"day")}, ${plural(p.h,"hour")}, ${plural(p.m,"min")} ago`;
     }
   }
 
-  el.dot && (el.dot.className = "dot");
-  if(el.statusText) el.statusText.textContent = isLive ? "live" : "offline — updated";
-  if(el.updated) el.updated.textContent = "· " + now.toLocaleTimeString("en-IN", {timeZone:"Asia/Kolkata", hour:"2-digit", minute:"2-digit", second:"2-digit"}) + " IST";
   el.error.classList.remove("show");
   el.error.textContent = "";
 }
 
 async function load(){
-  if(el.statusText) el.statusText.textContent = "fetching…";
-  if(el.dot) el.dot.className = "dot";
   el.error.classList.remove("show");
-  if(el.refreshBtn) el.refreshBtn.disabled = true;
   try{
     const user = await fetchGQL();
     // demo: ?live forces LIVE preview without touching real data
@@ -434,28 +389,13 @@ async function load(){
     console.error(e);
     el.days.textContent = "—";
     el.subtitle.textContent = "Could not fetch Twitch data.";
-    if(el.dot) el.dot.className = "dot err";
-    if(el.statusText) el.statusText.textContent = "error";
     el.error.textContent = "Fetch failed: " + (e.message || e) + " — Twitch GQL may be rate-limited or CORS-blocked if you opened the file via file:// in some browsers. Try opening via http:// (or tell me and I’ll add a CORS proxy fallback).";
     el.error.classList.add("show");
     el.ist.textContent = "—";
-    if(el.utc) el.utc.textContent = "—";
     el.exact.textContent = "—";
     el.badge.textContent = "error";
-  } finally {
-    if(el.refreshBtn) el.refreshBtn.disabled = false;
   }
 }
-
-if(el.refreshBtn) el.refreshBtn.addEventListener("click", load);
-const _copy = document.getElementById("copyLink");
-if(_copy) _copy.addEventListener("click", (e)=>{
-  e.preventDefault();
-  const t = el.days.textContent.trim() + " — " + el.subtitle.textContent.replace(/<[^>]*>/g,"") + " (twitch.tv/aisuchu)";
-  navigator.clipboard.writeText(t).then(()=>{
-    const a = e.target; const old=a.textContent; a.textContent="copied!"; setTimeout(()=>a.textContent=old,1200);
-  });
-});
 
 // --- PAST HIATUSES inferred from https://twitchtracker.com/aisuchu/streams ---
 // pre-Sep-2025: tracker is the only source (no email records).
@@ -491,7 +431,7 @@ const MOCK_HIATUS = [
 
 // helper for the real log: close an open hiatus the moment a new stream starts
 function closeHiatus(h, streamDate){
-  const s = new Date(h.start + "T00:00:00Z");
+  const s = new Date(h.start + "T12:00:00Z"); // noon anchor: matches display, avoids IST midnight ±1d
   const e = new Date(streamDate);
   h.end = e.toISOString().slice(0,10);
   h.days = Math.max(0, Math.floor((e - s)/86400000));
@@ -514,7 +454,7 @@ function renderHiatus(list){
   // compute days for ongoing (end=null) as now - start (floor days)
   let computed = list.map(h=>{
     if(h.end && h.days) return h;
-    const s = new Date(h.start + "T00:00:00Z"); // start-of-day UTC anchor for open hiatuses
+    const s = new Date(h.start + "T12:00:00Z"); // noon UTC anchor for open hiatuses: avoids IST-midnight ±1d
     const now = new Date();
     const days = Math.max(0, Math.floor((now - s)/86400000));
     return { ...h, days, end: h.end || null };
@@ -555,14 +495,6 @@ if(hiatusBtn && hiatusWrap){
 
 load();
 setInterval(load, REFRESH_MS);
-
-// also tick the "exact elapsed" every 30s without refetching, so it feels live
-setInterval(()=>{
-  const istText = el.ist.textContent;
-  if(istText && istText !== "—" && !el.badge.classList.contains("live")){
-    // re-parse from displayed IST is messy — just refetch is cheap; skip tick if live
-  }
-}, 30000);
 </script>
 </body>
 </html>
